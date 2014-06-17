@@ -20,6 +20,8 @@ angular.module('famousAngularStarter')
       'touch': TouchSync
     });
 
+    var images = ['../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png'];
+
     //App Parameters
     var repulsionStrength    = 5,
         repulsionMinRadius   = 10,
@@ -75,7 +77,7 @@ angular.module('famousAngularStarter')
         // define the picture to translate with the transitionable
         var pic = {
           translate: position,
-          photo: '../images/yeoman.png',
+          photo: images[i],
           index: i
         };
 
