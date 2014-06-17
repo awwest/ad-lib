@@ -1,9 +1,9 @@
-famous-angular-starter
+ad-lib
 ======================
 
-Starter repo for Famo.us/Angular
+Ad-lib is a small widget built in Angular/Famo.us that allows you to scroll through your photos with beautiful animations that utilize the Famo.us physics engine.
 
-The `master` branch is a viable seed project for Famo.us/Angular.
+This project was built off the starter repo for Famo.us/Angular! (https://github.com/thomasstreet/famous-angular-starter)
 
 ## Running
 
