@@ -33,7 +33,8 @@ angular.module('famousAngularStarter')
         var position = new Transitionable([450*i + 50, $scope.offset, 1]); // initial place
 
         var rectangle = new Rectangle({
-          size: [400, 300]
+          size: [400, 300],
+          position: position.get() // starts it, but how to make it continue?
         });
 
         window.PE.addBody(rectangle);
@@ -54,6 +55,7 @@ angular.module('famousAngularStarter')
             position.get()[0]+data.delta[0],
             position.get()[1]+data.delta[1]
           ]);
+          rectangle.setPosition(position.get());
         });
 
         pic.sync.on('end', function(data){
