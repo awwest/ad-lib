@@ -29,6 +29,9 @@ angular.module('famousAngularStarter')
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
 
+    //Create repulsion target array
+    var repulsionTargets = [];
+
     // Create a repulsion
     var repulsion = new Repulsion({
       strength: repulsionStrength,
@@ -64,7 +67,9 @@ angular.module('famousAngularStarter')
 
         // add the rectangle to the physics engine
         window.PE.addBody(rectangle);
+        repulsionTargets.push(rectangle);
 
+        window.PE.attach(repulsion, repulsionTargets, rectangle);
         window.PE.attach(repulsion, rectangle, repulsionBar);
 
         // define the picture to translate with the transitionable
@@ -75,7 +80,7 @@ angular.module('famousAngularStarter')
         };
 
         // pic to listen to mouse/touch events for position
-        pic.sync = new GenericSync([/*'mouse', */'touch'], function() { return position.get(); });
+        pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
 
         // pipe surface events to event handler
         pic.EH = new EventHandler();
