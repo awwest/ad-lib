@@ -15,7 +15,7 @@ angular.module('famousAngularStarter')
 
     // Set our sync to listen to mouse and touch events
     GenericSync.register({
-      // 'mouse': MouseSync,
+      'mouse': MouseSync,
       'touch': TouchSync
     });
 
@@ -30,48 +30,58 @@ angular.module('famousAngularStarter')
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
       (function() {
-        var position = new Transitionable([450*i + 50, $scope.offset, 1]); // initial place
+        // create the position for the picture to start at
+        var position = new Transitionable([450*i + 50, $scope.offset, 1]);
 
+        // create a rectangle for the picture in the physics engine at the same place
         var rectangle = new Rectangle({
           size: [400, 300],
           position: position.get() // starts it, but how to make it continue?
         });
 
+        // add the rectangle to the physics engine
         window.PE.addBody(rectangle);
 
+        // define the picture to translate with the transitionable
         var pic = {
           translate: position,
           photo: '../images/yeoman.png',
           index: i
         };
 
-        pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
+        // pic to listen to mouse/touch events for position
+        pic.sync = new GenericSync([/*'mouse', */'touch'], function() { return position.get(); });
 
+        // pipe surface events to event handler
         pic.EH = new EventHandler();
         pic.EH.pipe(pic.sync);
 
+        // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
-          position.set([
+          rectangle.setPosition([
             position.get()[0]+data.delta[0],
             position.get()[1]+data.delta[1]
           ]);
-          rectangle.setPosition(position.get());
+          position.set(rectangle.getPosition())
         });
 
-        pic.sync.on('end', function(data){
-          console.log(data);
-          //TODO: this is where we put in physics!
-          position.set([
-            position.get()[0]+(data.velocity[0]*200),
-            position.get()[1]+(data.velocity[1]*200)
-          ], {
-            curve: Easing.outBack,
-            duration: 200
-          }, function() {
-            console.log('done');
-          });
-        });
+        // on end, let physics take over..?
+        // pic.sync.on('end', function(data){
+        //   // console.log(data);
+        //   // TODO: this is where we put in physics!
+        //   // see: PhysicsEngine.prototype.emit?
+        //   position.set([
+        //     position.get()[0]+(data.velocity[0]*200),
+        //     position.get()[1]+(data.velocity[1]*200)
+        //   ], {
+        //     curve: Easing.outBack,
+        //     duration: 200
+        //   }, function() {
+        //     // console.log('done');
+        //   });
+        // });
 
+        // add picture to scope variable for use in angular
         $scope.pictures.push(pic);
 
       })();
