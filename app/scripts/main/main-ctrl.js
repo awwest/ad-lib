@@ -40,7 +40,7 @@ angular.module('famousAngularStarter')
 
         pic.sync.on('update', function(data){
           // console.log(data);
-          position.set(data.position); // TODO perhaps calculate position off delta?
+          position.set([position.get()[0]+data.delta[0], position.get()[1]+data.delta[1]]); // TODO perhaps calculate position off delta?
         });
 
         // pic.sync.on('end', function(data){
