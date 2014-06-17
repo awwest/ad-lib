@@ -10,6 +10,7 @@ angular.module('famousAngularStarter')
     var EventHandler   = $famous['famous/core/EventHandler'];
     var PhysicsEngine  = $famous['famous/physics/PhysicsEngine'];
     var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
+    var Repulsion      = $famous['famous/physics/forces/Repulsion'];
 
     // var SlideData      = require(['../images/SlideData']); // not currently being used
 
@@ -19,9 +20,30 @@ angular.module('famousAngularStarter')
       'touch': TouchSync
     });
 
+    //App Parameters
+    var repulsionStrength    = 5,
+        repulsionMinRadius   = 10,
+        repulsionMaxRadius   = 150,
+        repulsionCap         = 0.5;
+
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
 
+    // Create a repulsion
+    var repulsion = new Repulsion({
+      strength: repulsionStrength,
+      rMin: repulsionMinRadius,
+      rMax: repulsionMaxRadius,
+      cap: repulsionCap
+    });
+
+    // Create a rectangle that repels pictures
+    var repulsionBar = new Rectangle({
+      size: [800, 200],
+      position: [500, 500, 3]
+    });
+
+    // Scope variables
     $scope.greeting = 'Hello, Famo.us';
     $scope.numberOfPictures   = 3; // number of pictures
     $scope.offset   = 50; // Y offset from top for where pictures start
@@ -39,8 +61,11 @@ angular.module('famousAngularStarter')
           position: position.get() // starts it, but how to make it continue?
         });
 
+
         // add the rectangle to the physics engine
         window.PE.addBody(rectangle);
+
+        window.PE.attach(repulsion, rectangle, repulsionBar);
 
         // define the picture to translate with the transitionable
         var pic = {
@@ -56,13 +81,16 @@ angular.module('famousAngularStarter')
         pic.EH = new EventHandler();
         pic.EH.pipe(pic.sync);
 
+        // pipe rectangle events to sync??
+        rectangle.pipe(pic.sync);
+
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
           rectangle.setPosition([
             position.get()[0]+data.delta[0],
             position.get()[1]+data.delta[1]
           ]);
-          position.set(rectangle.getPosition())
+          position.set(rectangle.getPosition());
         });
 
         // on end, let physics take over..?

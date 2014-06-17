@@ -1,6 +1,14 @@
 <fa-app class="full-screen">
   <fa-modifier fa-origin="[0, 0]">
     <fa-modifier
+      fa-size="[800, 200]"
+      fa-translate="[500, 500, 3]">
+      <fa-surface
+        fa-size="[undefined, undefined]"
+        fa-background-color="'rgb(5,22,48)'">
+      </fa-surface>
+    </fa-modifier>
+    <fa-modifier
       ng-repeat="picture in pictures"
       fa-size="[400, 300]"
       fa-translate="picture.translate.get()">
