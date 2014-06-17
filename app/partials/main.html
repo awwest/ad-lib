@@ -4,9 +4,10 @@
       ng-repeat="picture in pictures"
       fa-size="[400, 300]"
       fa-translate="picture.translate.get()">
-      <fa-surface
+      <fa-image-surface
         class="center-box"
         fa-size="[undefined, undefined]"
+        fa-image-url={{picture.photo}}
         fa-background-color="'rgb(5,22,48)'"
         fa-color="'rgb(255,255,250)'">
         {{greeting}}
