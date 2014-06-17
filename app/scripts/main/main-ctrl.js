@@ -3,16 +3,17 @@
 angular.module('famousAngularStarter')
   .controller('MainCtrl', function ($scope, $famous) {
     var Transitionable = $famous['famous/transitions/Transitionable'];
+    var Easing         = $famous['famous/transitions/Easing'];
     var GenericSync    = $famous['famous/inputs/GenericSync'];
     var MouseSync      = $famous['famous/inputs/MouseSync'];
     var TouchSync      = $famous['famous/inputs/TouchSync'];
     var EventHandler   = $famous['famous/core/EventHandler'];
-    var PhysicsEngine  = require('famous/physics/PhysicsEngine'); // not currently being used
-    var SlideData      = require(['../images/SlideData']); // not currently being used
+    // var PhysicsEngine  = require('famous/physics/PhysicsEngine'); // not currently being used
+    // var SlideData      = require(['../images/SlideData']); // not currently being used
 
     // Set our sync to listen to mouse and touch events
     GenericSync.register({
-      'mouse': MouseSync,
+      // 'mouse': MouseSync,
       'touch': TouchSync
     });
 
@@ -39,18 +40,25 @@ angular.module('famousAngularStarter')
         pic.EH.pipe(pic.sync);
 
         pic.sync.on('update', function(data){
-          // console.log(data);
-          position.set([position.get()[0]+data.delta[0], position.get()[1]+data.delta[1]]); // TODO perhaps calculate position off delta?
+          position.set([
+            position.get()[0]+data.delta[0],
+            position.get()[1]+data.delta[1]
+          ]);
         });
 
-        // pic.sync.on('end', function(data){
-        //   console.log(data);
-        //   //TODO: this is where we put in physics!
-        //   position.set([data.clientX, data.clientY], {
-        //     strength : 0.005,
-        //     velocity : data.velocity 
-        //   });
-        // });
+        pic.sync.on('end', function(data){
+          console.log(data);
+          //TODO: this is where we put in physics!
+          position.set([
+            position.get()[0]+(data.velocity[0]*200),
+            position.get()[1]+(data.velocity[1]*200)
+          ], {
+            curve: Easing.outBack,
+            duration: 200
+          }, function() {
+            console.log('done');
+          });
+        });
 
         $scope.pictures.push(pic);
 
