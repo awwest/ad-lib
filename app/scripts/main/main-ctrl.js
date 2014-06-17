@@ -8,7 +8,9 @@ angular.module('famousAngularStarter')
     var MouseSync      = $famous['famous/inputs/MouseSync'];
     var TouchSync      = $famous['famous/inputs/TouchSync'];
     var EventHandler   = $famous['famous/core/EventHandler'];
-    // var PhysicsEngine  = require('famous/physics/PhysicsEngine'); // not currently being used
+    var PhysicsEngine  = $famous['famous/physics/PhysicsEngine'];
+    var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
+
     // var SlideData      = require(['../images/SlideData']); // not currently being used
 
     // Set our sync to listen to mouse and touch events
@@ -17,23 +19,31 @@ angular.module('famousAngularStarter')
       'touch': TouchSync
     });
 
+    // Instantiate physics engine
+    window.PE = new PhysicsEngine();
+
     $scope.greeting = 'Hello, Famo.us';
     $scope.numberOfPictures   = 3; // number of pictures
     $scope.offset   = 50; // Y offset from top for where pictures start
     $scope.pictures = []; // array of pictures
-
-    // var PE = new PhysicsEngine();
 
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
       (function() {
         var position = new Transitionable([450*i + 50, $scope.offset, 1]); // initial place
 
+        var rectangle = new Rectangle({
+          size: [400, 300]
+        });
+
+        window.PE.addBody(rectangle);
+
         var pic = {
           translate: position,
           photo: '../images/yeoman.png',
           index: i
         };
+
         pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
 
         pic.EH = new EventHandler();
