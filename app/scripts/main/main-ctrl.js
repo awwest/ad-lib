@@ -101,13 +101,11 @@ angular.module('famousAngularStarter')
           pic.dragging = false;
         });
 
-        pic.getPosition = function(data){
-          if(data){
-            // console.log(pic.sync);
-              return [
-                position.get()[0]+data.delta[0],
-                position.get()[1]+data.delta[1]
-              ];
+        pic.getPosition = function(){
+          if(pic.dragging){
+            var tempPlace = position.get();
+            rectangle.setPosition(tempPlace);
+            return tempPlace;
           }else{
             return rectangle.getPosition();
           }
@@ -121,7 +119,10 @@ angular.module('famousAngularStarter')
 
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
-          pic.getPosition(data);
+          position.set([
+                position.get()[0]+data.delta[0],
+                position.get()[1]+data.delta[1]
+              ]);
         });
 
         // on end, let physics take over..?
