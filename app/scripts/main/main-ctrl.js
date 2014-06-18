@@ -64,20 +64,40 @@ angular.module('famousAngularStarter')
       // modify physics rectangle for our needs
       pic.index = i;
       pic.photo = images[i];
+      pic._truePosition = pic.getPosition(); // initialize true position
 
       // pipe surface events to event handler 
       pic.sync = new GenericSync(['mouse', 'touch']);
       pic.EH = new EventHandler();
       pic.EH.pipe(pic.sync);
 
-      // on update, set transitionable and also rectangle position
+      // overriding physics with sync
+      pic.override = false;
+      pic.sync.on('start', function() { pic.override = true; });
+      pic.sync.on('end', function() { pic.override = false; });
       pic.sync.on('update', function(data){
-        var cachedPos = pic.getPosition();
-        pic.setPosition([
-          cachedPos[0]+data.delta[0],
-          cachedPos[1]+data.delta[1]
+        pic.setTruePosition([
+          pic._truePosition[0] + data.delta[0],
+          pic._truePosition[1] + data.delta[1]
         ]);
       });
+
+      pic.setTruePosition = function(position) {
+        pic._truePosition = position;
+      };
+
+      pic.getTruePosition = function(data) {
+        // if in override, sync determines where the item is
+        if(pic.override) {
+          pic.setPosition(pic._truePosition);
+        } else {
+          // otherwise physics engine does
+          pic.setTruePosition(pic.getPosition());
+        }
+        return pic._truePosition;
+      };
+
+
 
       $scope.pictures.push(pic);
 
