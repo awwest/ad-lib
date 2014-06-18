@@ -11,6 +11,7 @@ angular.module('famousAngularStarter')
     var PhysicsEngine  = $famous['famous/physics/PhysicsEngine'];
     var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
     var Repulsion      = $famous['famous/physics/forces/Repulsion'];
+    var Walls          = $famous['famous/physics/constraints/Walls'];
 
     // var SlideData      = require(['../images/SlideData']); // not currently being used
 
@@ -24,12 +25,13 @@ angular.module('famousAngularStarter')
 
     //App Parameters
     var repulsionStrength    = 5,
-        repulsionMinRadius   = 10,
-        repulsionMaxRadius   = 150,
+        repulsionMinRadius   = 1,
+        repulsionMaxRadius   = 5,
         repulsionCap         = 0.5;
 
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
+    PE.attach(new Walls({ restitution : 0.5 }));
 
     //Create repulsion target array
     var repulsionTargets = [];
@@ -88,16 +90,38 @@ angular.module('famousAngularStarter')
         pic.EH = new EventHandler();
         pic.EH.pipe(pic.sync);
 
+
+        pic.dragging = false;
+
+        pic.sync.on('start', function() {
+          pic.dragging = true;
+        });
+
+        pic.sync.on('end', function() {
+          pic.dragging = false;
+        });
+
+        pic.getPosition = function(data){
+          if(data){
+            // console.log(pic.sync);
+              return [
+                position.get()[0]+data.delta[0],
+                position.get()[1]+data.delta[1]
+              ];
+          }else{
+            return rectangle.getPosition();
+          }
+        };
+
         // pipe rectangle events to sync??
-        rectangle.pipe(pic.sync);
+        // rectangle.on('update', function(data) {
+        //   console.log(data)
+        //   position.set(rectangle.getPosition());
+        // });
 
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
-          rectangle.setPosition([
-            position.get()[0]+data.delta[0],
-            position.get()[1]+data.delta[1]
-          ]);
-          position.set(rectangle.getPosition());
+          pic.getPosition(data);
         });
 
         // on end, let physics take over..?

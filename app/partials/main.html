@@ -5,13 +5,13 @@
       fa-translate="[500, 500, 3]">
       <fa-surface
         fa-size="[undefined, undefined]"
-        fa-background-color="'rgb(5,22,48)'">
+        fa-background-color="'rgb(5,22,48)'"> {{rectData}}
       </fa-surface>
     </fa-modifier>
     <fa-modifier
       ng-repeat="picture in pictures"
       fa-size="[400, 300]"
-      fa-translate="picture.translate.get()">
+      fa-translate="picture.getPosition()">
       <fa-image-surface
         class="center-box"
         fa-size="[undefined, undefined]"
