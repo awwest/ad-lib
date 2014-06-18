@@ -107,7 +107,9 @@ angular.module('famousAngularStarter')
             rectangle.setPosition(tempPlace);
             return tempPlace;
           }else{
-            return rectangle.getPosition();
+            var cachePos = rectangle.getPosition();
+            position.set(cachePos);
+            return cachePos;
           }
         };
 
