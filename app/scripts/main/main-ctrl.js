@@ -12,6 +12,8 @@ angular.module('famousAngularStarter')
     var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
     var Repulsion      = $famous['famous/physics/forces/Repulsion'];
     var Walls          = $famous['famous/physics/constraints/Walls'];
+    var Drag = $famous['famous/physics/forces/Drag'];
+    var Spring = $famous['famous/physics/forces/Spring'];
 
     // var SlideData      = require(['../images/SlideData']); // not currently being used
 
@@ -24,17 +26,20 @@ angular.module('famousAngularStarter')
     var images = ['../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png'];
 
     //App Parameters
-    var repulsionStrength    = 5,
+    var repulsionStrength    = 15,
         repulsionMinRadius   = 1,
         repulsionMaxRadius   = 5,
         repulsionCap         = 0.5;
 
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
-    PE.attach(new Walls({ restitution : 0.5 }));
+
+    window.PE.attach(new Drag({strength : 0.9}));
+
+    window.PE.attach(new Walls({ restitution : 0.5 }));
 
     //Create repulsion target array
-    var repulsionTargets = [];
+    var rectangles = [];
 
     // Create a repulsion
     var repulsion = new Repulsion({
@@ -71,10 +76,11 @@ angular.module('famousAngularStarter')
 
         // add the rectangle to the physics engine
         window.PE.addBody(rectangle);
-        repulsionTargets.push(rectangle);
+        rectangles.push(rectangle);
 
-        window.PE.attach(repulsion, repulsionTargets, rectangle);
-        window.PE.attach(repulsion, rectangle, repulsionBar);
+        window.PE.attach(repulsion, rectangles, rectangle);
+        // window.PE.attach(repulsion, rectangle, repulsionBar);
+
 
         // define the picture to translate with the transitionable
         var pic = {
@@ -83,24 +89,16 @@ angular.module('famousAngularStarter')
           index: i
         };
 
-        // pic to listen to mouse/touch events for position
-        pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
-
-        // pipe surface events to event handler
-        pic.EH = new EventHandler();
-        pic.EH.pipe(pic.sync);
-
-
-        pic.dragging = false;
-
-        pic.sync.on('start', function() {
-          pic.dragging = true;
+        var spring = new Spring({
+            period : 1000,
+            dampingRatio : 0.9,
+            length: 500,
+            maxLength: 700
         });
 
-        pic.sync.on('end', function() {
-          pic.dragging = false;
-        });
+        window.PE.attach(spring, rectangles, rectangle);
 
+        //getPosition is called on render cycle to draw current picture position
         pic.getPosition = function(){
           if(pic.dragging){
             var tempPlace = position.get();
@@ -113,11 +111,29 @@ angular.module('famousAngularStarter')
           }
         };
 
-        // pipe rectangle events to sync??
-        // rectangle.on('update', function(data) {
-        //   console.log(data)
-        //   position.set(rectangle.getPosition());
-        // });
+        ////////////////////////////////////////////////////////////////
+
+        ////// Sync code to listen to mouse/touch events for position
+
+
+        pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
+
+        // pipe surface events to event handler
+        pic.EH = new EventHandler();
+        pic.EH.pipe(pic.sync);
+
+
+        //Sets up drag conditional
+        pic.dragging = false;
+
+        pic.sync.on('start', function() {
+          pic.dragging = true;
+        });
+
+        pic.sync.on('end', function() {
+          pic.dragging = false;
+        });
+
 
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
@@ -127,21 +143,10 @@ angular.module('famousAngularStarter')
               ]);
         });
 
-        // on end, let physics take over..?
-        // pic.sync.on('end', function(data){
-        //   // console.log(data);
-        //   // TODO: this is where we put in physics!
-        //   // see: PhysicsEngine.prototype.emit?
-        //   position.set([
-        //     position.get()[0]+(data.velocity[0]*200),
-        //     position.get()[1]+(data.velocity[1]*200)
-        //   ], {
-        //     curve: Easing.outBack,
-        //     duration: 200
-        //   }, function() {
-        //     // console.log('done');
-        //   });
-        // });
+        ///////////////////////////////////////////
+
+
+
 
         // add picture to scope variable for use in angular
         $scope.pictures.push(pic);
