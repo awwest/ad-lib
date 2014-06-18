@@ -65,18 +65,18 @@ angular.module('famousAngularStarter')
       size: [800, 200],
       position: [500, 500, 1]
     });
+    window.PE.addBody($scope.repulsionBar);
 
 
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
       (function() {
 
-        var pic = {};
-        pic.rect = new Rectangle({
+        var pic = new Rectangle({
           size: [400, 300],
           position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
         });
-        window.PE.addBody(pic.rect);
+        window.PE.addBody(pic);
 
         pic.index = i;
         pic.photo = images[i];
@@ -84,9 +84,9 @@ angular.module('famousAngularStarter')
 
 
         // add the rectangle to the physics engine
-        rectangles.push(pic.rect);
+        rectangles.push(pic);
 
-        window.PE.attach(repulsion, rectangles, pic.rect);
+        window.PE.attach(repulsion, rectangles, pic);
         // window.PE.attach(repulsion, rectangle, repulsionBar);
 
 
@@ -99,7 +99,7 @@ angular.module('famousAngularStarter')
             maxLength: 700
         });
 
-        window.PE.attach(spring, rectangles, pic.rect);
+        window.PE.attach(spring, rectangles, pic);
 
         ////////////////////////////////////////////////////////////////
 
@@ -116,8 +116,8 @@ angular.module('famousAngularStarter')
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
           // rectangle.setVelocity([0,0,0]);
-          var cachedPos = pic.rect.getPosition();
-          pic.rect.setPosition([
+          var cachedPos = pic.getPosition();
+          pic.setPosition([
                 cachedPos[0]+data.delta[0],
                 cachedPos[1]+data.delta[1]
               ]);

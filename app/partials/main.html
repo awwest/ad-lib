@@ -2,15 +2,15 @@
   <fa-modifier fa-origin="[0, 0]">
     <fa-modifier
       fa-size="repulsionBar.size"
-      fa-translate="repulsionBar.position.get()">
+      fa-translate="repulsionBar.getPosition()">
       <fa-surface class="repulsionBar"
         fa-background-color="'rgb(5,22,48)'"> {{rectData}}
       </fa-surface>
     </fa-modifier>
     <fa-modifier
       ng-repeat="picture in pictures"
-      fa-size="[400, 300]"
-      fa-translate="picture.rect.getPosition()">
+      fa-size="picture.size"
+      fa-translate="picture.getPosition()">
       <fa-image-surface
         class="center-box"
         fa-image-url={{picture.photo}}
