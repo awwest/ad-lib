@@ -23,7 +23,16 @@ angular.module('famousAngularStarter')
       'touch': TouchSync
     });
 
-    var images = ['../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png', '../images/yeoman.png'];
+    var images = ['../images/yeoman.png',
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png',
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png',
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png', 
+                  '../images/yeoman.png'];
 
     //App Parameters
     var repulsionStrength    = 15,
@@ -34,7 +43,7 @@ angular.module('famousAngularStarter')
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
 
-    window.PE.attach(new Drag({strength : 0.9}));
+    window.PE.attach(new Drag({strength : 1}));
 
     window.PE.attach(new Walls({ restitution : 0.5 }));
 
@@ -52,25 +61,25 @@ angular.module('famousAngularStarter')
     // Create a rectangle that repels pictures
     var repulsionBar = new Rectangle({
       size: [800, 200],
-      position: [500, 500, 3]
+      position: [500, 500, 0]
     });
 
     // Scope variables
     $scope.greeting = 'Hello, Famo.us';
-    $scope.numberOfPictures   = 3; // number of pictures
-    $scope.offset   = 50; // Y offset from top for where pictures start
+    $scope.numberOfPictures = 3; // number of pictures
+    $scope.offset   = 500; // Y offset from top for where pictures start
     $scope.pictures = []; // array of pictures
 
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
       (function() {
         // create the position for the picture to start at
-        var position = new Transitionable([450*i + 50, $scope.offset, 1]);
+        // var position = new Transitionable([450*i + 50, $scope.offset, 1]);
 
         // create a rectangle for the picture in the physics engine at the same place
         var rectangle = new Rectangle({
           size: [400, 300],
-          position: position.get() // starts it, but how to make it continue?
+          position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
         });
 
 
@@ -84,7 +93,7 @@ angular.module('famousAngularStarter')
 
         // define the picture to translate with the transitionable
         var pic = {
-          translate: position,
+          translate: [450*i + 50, $scope.offset, 1],
           photo: images[i],
           index: i
         };
@@ -100,15 +109,7 @@ angular.module('famousAngularStarter')
 
         //getPosition is called on render cycle to draw current picture position
         pic.getPosition = function(){
-          if(pic.dragging){
-            var tempPlace = position.get();
-            rectangle.setPosition(tempPlace);
-            return tempPlace;
-          }else{
-            var cachePos = rectangle.getPosition();
-            position.set(cachePos);
-            return cachePos;
-          }
+          return rectangle.getPosition();
         };
 
         ////////////////////////////////////////////////////////////////
@@ -116,30 +117,20 @@ angular.module('famousAngularStarter')
         ////// Sync code to listen to mouse/touch events for position
 
 
-        pic.sync = new GenericSync(['mouse', 'touch'], function() { return position.get(); });
+        pic.sync = new GenericSync(['mouse', 'touch']);
 
         // pipe surface events to event handler
         pic.EH = new EventHandler();
         pic.EH.pipe(pic.sync);
 
 
-        //Sets up drag conditional
-        pic.dragging = false;
-
-        pic.sync.on('start', function() {
-          pic.dragging = true;
-        });
-
-        pic.sync.on('end', function() {
-          pic.dragging = false;
-        });
-
-
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
-          position.set([
-                position.get()[0]+data.delta[0],
-                position.get()[1]+data.delta[1]
+          rectangle.setVelocity([0,0,0]);
+          var cachedPos = rectangle.getPosition();
+          rectangle.setPosition([
+                cachedPos[0]+data.delta[0],
+                cachedPos[1]+data.delta[1]
               ]);
         });
 
