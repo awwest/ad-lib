@@ -70,30 +70,27 @@ angular.module('famousAngularStarter')
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
       (function() {
-        // create the position for the picture to start at
-        // var position = new Transitionable([450*i + 50, $scope.offset, 1]);
 
-        // create a rectangle for the picture in the physics engine at the same place
-        var rectangle = new Rectangle({
+        var pic = {};
+        pic.rect = new Rectangle({
           size: [400, 300],
           position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
         });
+        window.PE.addBody(pic.rect);
+
+        pic.index = i;
+        pic.photo = images[i];
+
 
 
         // add the rectangle to the physics engine
-        window.PE.addBody(rectangle);
-        rectangles.push(rectangle);
+        rectangles.push(pic.rect);
 
-        window.PE.attach(repulsion, rectangles, rectangle);
+        window.PE.attach(repulsion, rectangles, pic.rect);
         // window.PE.attach(repulsion, rectangle, repulsionBar);
 
 
         // define the picture to translate with the transitionable
-        var pic = {
-          translate: [450*i + 50, $scope.offset, 1],
-          photo: images[i],
-          index: i
-        };
 
         var spring = new Spring({
             period : 1000,
@@ -102,12 +99,7 @@ angular.module('famousAngularStarter')
             maxLength: 700
         });
 
-        window.PE.attach(spring, rectangles, rectangle);
-
-        //getPosition is called on render cycle to draw current picture position
-        pic.getPosition = function(){
-          return rectangle.getPosition();
-        };
+        window.PE.attach(spring, rectangles, pic.rect);
 
         ////////////////////////////////////////////////////////////////
 
@@ -124,8 +116,8 @@ angular.module('famousAngularStarter')
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
           // rectangle.setVelocity([0,0,0]);
-          var cachedPos = rectangle.getPosition();
-          rectangle.setPosition([
+          var cachedPos = pic.rect.getPosition();
+          pic.rect.setPosition([
                 cachedPos[0]+data.delta[0],
                 cachedPos[1]+data.delta[1]
               ]);
