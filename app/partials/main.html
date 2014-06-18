@@ -4,13 +4,15 @@
       fa-size="repulsionBar.size"
       fa-translate="repulsionBar.getPosition()">
       <fa-surface class="repulsionBar"
+        fa-properties=""
+        fa-size="[undefined, undefined]"
         fa-background-color="'rgb(5,22,48)'"> {{rectData}}
       </fa-surface>
     </fa-modifier>
     <fa-modifier
       ng-repeat="picture in pictures"
-      fa-size="picture.size"
-      fa-translate="picture.getPosition()">
+      fa-translate="picture.getPosition()"
+      fa-size="picture.size">
       <fa-image-surface
         class="center-box"
         fa-image-url={{picture.photo}}

@@ -40,11 +40,11 @@ angular.module('famousAngularStarter')
                   '../images/yeoman.png', 
                   '../images/yeoman.png'];
 
-    //Physics parameters
-    var repulsionStrength    = 15,
-        repulsionMinRadius   = 1,
-        repulsionMaxRadius   = 5,
-        repulsionCap         = 0.5;
+    //App Parameters
+    var repulsionStrength = 15,
+        repulsionMinRadius = 1,
+        repulsionMaxRadius = 5,
+        repulsionCap = 0.5;
 
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
@@ -75,12 +75,13 @@ angular.module('famousAngularStarter')
         var pic = new Rectangle({
           size: [400, 300],
           position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
-        });
+
+
+        pic.photo = images[i],
+        pic.index =  i;
+
+        
         window.PE.addBody(pic);
-
-        pic.index = i;
-        pic.photo = images[i];
-
 
 
         // add the rectangle to the physics engine
@@ -90,7 +91,6 @@ angular.module('famousAngularStarter')
         // window.PE.attach(repulsion, rectangle, repulsionBar);
 
 
-        // define the picture to translate with the transitionable
 
         var spring = new Spring({
             period : 1000,
