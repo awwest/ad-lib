@@ -23,7 +23,8 @@ angular.module('famousAngularStarter')
   var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
   var Repulsion      = $famous['famous/physics/forces/Repulsion'];
   var Spring         = $famous['famous/physics/forces/Spring'];
-  // var Walls          = $famous['famous/physics/constraints/Walls'];
+  var VectorField = $famous['famous/physics/forces/VectorField'];
+  var Wall          = $famous['famous/physics/constraints/Wall'];
   // var Drag           = $famous['famous/physics/forces/Drag'];
 
   // Other dependencies
@@ -56,7 +57,7 @@ angular.module('famousAngularStarter')
     (function() {
 
       var pic = new Rectangle({
-        size: [400, 300],
+        size: [200, 300],
         position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
       });
       PE.addBody(pic);
@@ -67,7 +68,7 @@ angular.module('famousAngularStarter')
       pic._truePosition = pic.getPosition(); // initialize true position
 
       // pipe surface events to event handler 
-      pic.sync = new GenericSync(['mouse', 'touch']);
+      pic.sync = new GenericSync(['mouse', 'touch', 'scroll']);
       pic.EH = new EventHandler();
       pic.EH.pipe(pic.sync);
 
@@ -120,12 +121,30 @@ angular.module('famousAngularStarter')
       maxLength: 700
   });
 
+  var gravity = new VectorField({
+      strength : .001,
+      field : VectorField.FIELDS.CONSTANT,
+      direction : [0, 1, 0]
+  });
+
+  var floor = new Wall({
+    normal: [0, -1, 0],
+    distance: window.innerHeight / 2,
+    restitution: 0,
+    drift: 0
+  });
+
+  PE.attach(floor);
+
   // Attach a spring and repulsion between each picture and the rest of the pictures
   for(i = 0; i < $scope.pictures.length; i++) {
     var rest = $scope.pictures.slice();
     rest.splice(i, 1);
-    PE.attach(repulsion, rest, $scope.pictures[i]);
+    // PE.attach(repulsion, rest, $scope.pictures[i]);
     PE.attach(spring, rest, $scope.pictures[i]);
+    PE.attach(gravity);
+    PE.attach(floor, [$scope.pictures[i]]);
+
   }
 
   // // Create a rectangle that repels pictures
