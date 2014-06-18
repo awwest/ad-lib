@@ -1,10 +1,9 @@
 <fa-app class="full-screen">
   <fa-modifier fa-origin="[0, 0]">
     <fa-modifier
-      fa-size="[800, 200]"
-      fa-translate="[500, 500, 3]">
+      fa-size="repulsionBar.size"
+      fa-translate="repulsionBar.position.get()">
       <fa-surface class="repulsionBar"
-        fa-size="[undefined, undefined]"
         fa-background-color="'rgb(5,22,48)'"> {{rectData}}
       </fa-surface>
     </fa-modifier>
@@ -14,7 +13,6 @@
       fa-translate="picture.getPosition()">
       <fa-image-surface
         class="center-box"
-        fa-size="[undefined, undefined]"
         fa-image-url={{picture.photo}}
         fa-background-color="'rgb(5,22,48)'"
         fa-color="'rgb(255,255,250)'"

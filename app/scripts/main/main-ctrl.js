@@ -2,8 +2,13 @@
 
 angular.module('famousAngularStarter')
   .controller('MainCtrl', function ($scope, $famous) {
-    var Transitionable = $famous['famous/transitions/Transitionable'];
-    var Easing         = $famous['famous/transitions/Easing'];
+    // Scope variables
+    $scope.greeting = 'Hello, Famo.us';
+    $scope.numberOfPictures = 3; // number of pictures
+    $scope.offset   = 500; // Y offset from top for where pictures start
+    $scope.pictures = []; // array of pictures
+
+    // Famous dependencies
     var GenericSync    = $famous['famous/inputs/GenericSync'];
     var MouseSync      = $famous['famous/inputs/MouseSync'];
     var TouchSync      = $famous['famous/inputs/TouchSync'];
@@ -11,10 +16,11 @@ angular.module('famousAngularStarter')
     var PhysicsEngine  = $famous['famous/physics/PhysicsEngine'];
     var Rectangle      = $famous['famous/physics/bodies/Rectangle'];
     var Repulsion      = $famous['famous/physics/forces/Repulsion'];
-    var Walls          = $famous['famous/physics/constraints/Walls'];
-    var Drag = $famous['famous/physics/forces/Drag'];
-    var Spring = $famous['famous/physics/forces/Spring'];
+    var Spring         = $famous['famous/physics/forces/Spring'];
+    // var Walls          = $famous['famous/physics/constraints/Walls'];
+    // var Drag           = $famous['famous/physics/forces/Drag'];
 
+    // Other dependencies
     // var SlideData      = require(['../images/SlideData']); // not currently being used
 
     // Set our sync to listen to mouse and touch events
@@ -34,7 +40,7 @@ angular.module('famousAngularStarter')
                   '../images/yeoman.png', 
                   '../images/yeoman.png'];
 
-    //App Parameters
+    //Physics parameters
     var repulsionStrength    = 15,
         repulsionMinRadius   = 1,
         repulsionMaxRadius   = 5,
@@ -42,10 +48,6 @@ angular.module('famousAngularStarter')
 
     // Instantiate physics engine
     window.PE = new PhysicsEngine();
-
-    window.PE.attach(new Drag({strength : 1}));
-
-    window.PE.attach(new Walls({ restitution : 0.5 }));
 
     //Create repulsion target array
     var rectangles = [];
@@ -59,16 +61,11 @@ angular.module('famousAngularStarter')
     });
 
     // Create a rectangle that repels pictures
-    var repulsionBar = new Rectangle({
+    $scope.repulsionBar = new Rectangle({
       size: [800, 200],
-      position: [500, 500, 0]
+      position: [500, 500, 1]
     });
 
-    // Scope variables
-    $scope.greeting = 'Hello, Famo.us';
-    $scope.numberOfPictures = 3; // number of pictures
-    $scope.offset   = 500; // Y offset from top for where pictures start
-    $scope.pictures = []; // array of pictures
 
     for(var i = 0; i < $scope.numberOfPictures; i++) {
       // keep each picture in its own closure scope using immediately invoked function
@@ -126,7 +123,7 @@ angular.module('famousAngularStarter')
 
         // on update, set transitionable and also rectangle position
         pic.sync.on('update', function(data){
-          rectangle.setVelocity([0,0,0]);
+          // rectangle.setVelocity([0,0,0]);
           var cachedPos = rectangle.getPosition();
           rectangle.setPosition([
                 cachedPos[0]+data.delta[0],
