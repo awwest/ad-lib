@@ -4,15 +4,22 @@ angular.module('famousAngularStarter')
 .controller('MainCtrl', function ($scope, $famous) {
 
   // Scope variables
-  $scope.numberOfPictures = 3; // number of pictures
+  $scope.numberOfPictures = 6; // number of pictures
   $scope.offset   = 500; // Y offset from top for where pictures start
   $scope.pictures = []; // array of pictures
 
   //Physics parameters
-  var repulsionStrength    = 15,
+  var repulsionStrength    = 300,
       repulsionMinRadius   = 1,
-      repulsionMaxRadius   = 5,
-      repulsionCap         = 0.5;
+      repulsionMaxRadius   = 250,
+      repulsionCap         = 0.5,
+      attractionStrength = -300,
+      attractionMinRad = 300,
+      attractionMaxRad = Infinity,
+      attractionCap = 100,
+      dragStrength = 0.00000001;
+
+
 
   // Famous dependencies
   var GenericSync    = $famous['famous/inputs/GenericSync'];
@@ -25,7 +32,7 @@ angular.module('famousAngularStarter')
   var Spring         = $famous['famous/physics/forces/Spring'];
   var VectorField = $famous['famous/physics/forces/VectorField'];
   var Wall          = $famous['famous/physics/constraints/Wall'];
-  // var Drag           = $famous['famous/physics/forces/Drag'];
+  var Drag           = $famous['famous/physics/forces/Drag'];
 
   // Other dependencies
   // var SlideData      = require(['../images/SlideData']); // not currently being used
@@ -108,17 +115,23 @@ angular.module('famousAngularStarter')
   // Define a repulsion
   var repulsion = new Repulsion({
     strength: repulsionStrength,
-    rMin: repulsionMinRadius,
-    rMax: repulsionMaxRadius,
+    range: [repulsionMinRadius, repulsionMaxRadius],
     cap: repulsionCap
   });
 
+  var attraction = new Repulsion({
+    strength: attractionStrength,
+    range: [attractionMinRad, attractionMaxRad],
+    cap: attractionCap
+    // decayFunction : Repulsion.DECAY_FUNCTIONS.MORSE
+  })
+
   // Define a spring
   var spring = new Spring({
-      period : 1000,
-      dampingRatio : 0.9,
+      period : 1500,
+      dampingRatio : 0.01,
       length: 500,
-      maxLength: 700
+      maxLength: 550
   });
 
   var gravity = new VectorField({
@@ -134,15 +147,18 @@ angular.module('famousAngularStarter')
     drift: 0
   });
 
-  PE.attach(floor);
+  var drag = new Drag({
+    strenth: dragStrength
+  });
+
+  PE.attach([floor, drag, gravity]);
 
   // Attach a spring and repulsion between each picture and the rest of the pictures
   for(i = 0; i < $scope.pictures.length; i++) {
     var rest = $scope.pictures.slice();
     rest.splice(i, 1);
-    // PE.attach(repulsion, rest, $scope.pictures[i]);
-    PE.attach(spring, rest, $scope.pictures[i]);
-    PE.attach(gravity);
+    PE.attach(repulsion, rest, $scope.pictures[i]);
+    PE.attach(attraction, rest, $scope.pictures[i]);
     PE.attach(floor, [$scope.pictures[i]]);
 
   }
