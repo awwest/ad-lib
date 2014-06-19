@@ -33,7 +33,7 @@ angular.module('famousAngularStarter')
   // Set our sync to listen to mouse and touch events
   GenericSync.register({
     'mouse': MouseSync,
-    'touch': TouchSync
+    // 'touch': TouchSync
   });
 
   var images = [
@@ -75,7 +75,14 @@ angular.module('famousAngularStarter')
       // overriding physics with sync
       pic.override = false;
       pic.sync.on('start', function() { pic.override = true; });
-      pic.sync.on('end', function() { pic.override = false; });
+      pic.sync.on('end', function(data) {
+        // console.log(data);
+        pic.setVelocity([
+          data.velocity[0],
+          data.velocity[1]
+        ]);
+        pic.override = false;
+      });
       pic.sync.on('update', function(data){
         pic.setTruePosition([
           pic._truePosition[0] + data.delta[0],
@@ -135,15 +142,15 @@ angular.module('famousAngularStarter')
   });
 
   PE.attach(floor);
+  PE.attach(gravity);
 
   // Attach a spring and repulsion between each picture and the rest of the pictures
   for(i = 0; i < $scope.pictures.length; i++) {
     var rest = $scope.pictures.slice();
     rest.splice(i, 1);
     // PE.attach(repulsion, rest, $scope.pictures[i]);
-    PE.attach(spring, rest, $scope.pictures[i]);
-    PE.attach(gravity);
-    PE.attach(floor, [$scope.pictures[i]]);
+    // PE.attach(spring, rest, $scope.pictures[i]);
+    // PE.attach(floor, [$scope.pictures[i]]);
 
   }
 
