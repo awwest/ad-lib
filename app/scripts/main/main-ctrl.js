@@ -17,7 +17,10 @@ angular.module('famousAngularStarter')
       attractionMinRad = 300,
       attractionMaxRad = 500,
       attractionCap = 100,
-      dragStrength = 0.00000001;
+      dragStrength = 0.00000001,
+      forcesID,
+      attractorPosX = window.innerWidth/3,
+      attractorPosY = window.innerHeight/3;
 
 
 
@@ -103,6 +106,10 @@ angular.module('famousAngularStarter')
           // otherwise physics engine does
           pic.setTruePosition(pic.getPosition());
         }
+        
+        // console.log('attractor is at ', attractorPosX, ' ', attractorPosY);
+        // console.log(pic.index, ' is at ', pic._truePosition);
+
         return pic._truePosition;
       };
 
@@ -149,7 +156,7 @@ angular.module('famousAngularStarter')
     range: [1, 100],
     cap: .01,
     cutoff: .01,
-    anchor: [window.outerWidth/2, window.outerHeight/2, 0]
+    anchor: [attractorPosX, attractorPosY, 0]
   });
 
   var floor = new Wall({
@@ -163,7 +170,7 @@ angular.module('famousAngularStarter')
     strenth: dragStrength
   });
 
-  PE.attach([floor, drag, gravity]);
+  forcesID = PE.attach([floor, drag, gravity]);
 
 
   // Attach a spring and repulsion between each picture and the rest of the pictures
@@ -171,9 +178,10 @@ angular.module('famousAngularStarter')
     for(i = 0; i < picArray.length; i++) {
       var rest = picArray.slice();
       rest.splice(i, 1);
-      PE.attach(repulsion, rest, picArray[i]);
-      PE.attach(attraction, rest, picArray[i]);
-      PE.attach(greatAttractor, picArray[i]);
+      var pic = picArray[i];
+      pic.repulsionID = PE.attach(repulsion, rest, pic);
+      pic.attractionID = PE.attach(attraction, rest, pic);
+      pic.attractorID = PE.attach(greatAttractor, pic);
     }
   }
 
