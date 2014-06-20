@@ -15,7 +15,7 @@ angular.module('famousAngularStarter')
       repulsionCap         = 0.5,
       attractionStrength = -300,
       attractionMinRad = 350,
-      attractionMaxRad = 700,
+      attractionMaxRad = 800,
       attractionCap = 100,
       dragStrength = 0.00000001,
       forcesID,
@@ -109,7 +109,6 @@ angular.module('famousAngularStarter')
         pic.checkPos();
       });
       pic.upSync.on('update', function(data){
-        console.log(data);
         pic._truePosition = [pic._truePosition[0], pic._truePosition[1] + data.delta[1]];
       });
 
@@ -133,9 +132,10 @@ angular.module('famousAngularStarter')
       };
 
       pic.checkPos = function(){
-        var posCache = pic.getPosition();
+        var posCache = this.getPosition();
         if(posCache[1] < attractorPosY){
-          pic.getTruePosition = pic.getPosition;
+          this.getTruePosition = this.getPosition;
+          isolatePicture(this);
         }
       };
 
@@ -224,7 +224,10 @@ angular.module('famousAngularStarter')
   //Remove forces applied to passed picture
   function isolatePicture(picture){
     detachForces();
-    chainForces($scope.pictures.slice().splice(picture.index, 1));
+    var rest = $scope.pictures.slice();
+    rest.splice(picture.index, 1);
+    console.log(rest);
+    chainForces(rest);
   }
 
   chainForces($scope.pictures);
