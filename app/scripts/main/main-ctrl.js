@@ -9,7 +9,7 @@ angular.module('famousAngularStarter')
   $scope.pictures = []; // array of pictures
 
   //Physics parameters
-  var repulsionStrength    = 300,
+  var repulsionStrength    = 500,
       repulsionMinRadius   = 1,
       repulsionMaxRadius   = 300,
       repulsionCap         = 0.5,
@@ -39,6 +39,7 @@ angular.module('famousAngularStarter')
   var Wall          = $famous['famous/physics/constraints/Wall'];
   var Drag           = $famous['famous/physics/forces/Drag'];
   var Particle = $famous['famous/physics/bodies/Particle'];
+  var Engine = $famous['famous/core/Engine'];
 
   // Other dependencies
   // var SlideData      = require(['../images/SlideData']); // not currently being used
@@ -64,6 +65,7 @@ angular.module('famousAngularStarter')
 
   // Instantiate physics engine
   var PE = new PhysicsEngine();
+  // var engine = new Engine();
 
   for(var i = 0; i < $scope.numberOfPictures; i++) {
     // keep each picture in its own closure scope using immediately invoked function
@@ -81,9 +83,11 @@ angular.module('famousAngularStarter')
       pic._truePosition = pic.getPosition(); // initialize true position
 
       // pipe surface events to event handler 
-      pic.sync = new GenericSync(['mouse', 'touch', 'scroll']);
+      pic.sync = new GenericSync([/*'mouse', 'touch',*/ 'scroll']);
+      pic.upSync = new MouseSync();
       pic.EH = new EventHandler();
-      pic.EH.pipe(pic.sync);
+      Engine.pipe(pic.sync);
+      pic.EH.pipe(pic.upSync);
 
       // overriding physics with sync
       pic.override = false;
@@ -91,15 +95,26 @@ angular.module('famousAngularStarter')
         pic.override = true;
       });
       pic.sync.on('end', function() { pic.override = false; });
-      pic.sync.on('update', function(data){
+      pic.syncID = pic.sync.on('update', function (data){
         pic.setTruePosition([
           pic._truePosition[0] + data.delta[0],
-          pic._truePosition[1] + data.delta[1]
+          pic._truePosition[1] //+ data.delta[1]
         ]);
       });
 
+      pic.upSync.on('start', function(){ 
+        pic.override = true;});
+      pic.upSync.on('end', function(){ 
+        pic.override = false;
+        pic.checkPos();
+      });
+      pic.upSync.on('update', function(data){
+        console.log(data);
+        pic._truePosition = [pic._truePosition[0], pic._truePosition[1] + data.delta[1]];
+      });
+
       pic.setTruePosition = function(position) {
-        pic._truePosition = position;
+        pic._truePosition = [position[0], pic._truePosition[1]];
       };
 
       pic.getTruePosition = function(data) {
@@ -117,7 +132,12 @@ angular.module('famousAngularStarter')
         return pic._truePosition;
       };
 
-
+      pic.checkPos = function(){
+        var posCache = pic.getPosition();
+        if(posCache[1] < attractorPosY){
+          pic.getTruePosition = pic.getPosition;
+        }
+      };
 
       $scope.pictures.push(pic);
 
@@ -138,7 +158,7 @@ angular.module('famousAngularStarter')
     cap: attractionCap,
     cutoff: 1
     // decayFunction : Repulsion.DECAY_FUNCTIONS.MORSE
-  })
+  });
 
   // Define a spring
   var spring = new Spring({
@@ -200,6 +220,8 @@ angular.module('famousAngularStarter')
     }
   }
 
+
+  //Remove forces applied to passed picture
   function isolatePicture(picture){
     detachForces();
     chainForces($scope.pictures.slice().splice(picture.index, 1));
