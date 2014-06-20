@@ -136,6 +136,7 @@ angular.module('famousAngularStarter')
         if(posCache[1] < attractorPosY){
           this.getTruePosition = this.getPosition;
           isolatePicture(this);
+          this.attractorID = PE.attach(greatAttractor, this);
         }
       };
 
@@ -177,7 +178,7 @@ angular.module('famousAngularStarter')
   // var particle = new Particle({position:[window.innerWidth/2, window.innerHeight/2, 0]});
   var greatAttractor = new Repulsion({
     strength : -200,
-    range: [1, 100],
+    range: [1, 1000],
     cap: .01,
     cutoff: .01,
     anchor: [attractorPosX, attractorPosY, 0]
@@ -207,8 +208,8 @@ angular.module('famousAngularStarter')
       forceArray.push(pic.repulsionID);
       pic.attractionID = PE.attach(attraction, rest, pic);
       forceArray.push(pic.attractionID);
-      pic.attractorID = PE.attach(greatAttractor, pic);
-      forceArray.push(pic.attractorID);
+      // pic.attractorID = PE.attach(greatAttractor, pic);
+      // forceArray.push(pic.attractorID);
     }
   }
 
@@ -218,6 +219,7 @@ angular.module('famousAngularStarter')
     for (i = 0; i < forceArray.length; i++){
       PE.detach(forceArray[i]);
     }
+    forceArray = [];
   }
 
 
