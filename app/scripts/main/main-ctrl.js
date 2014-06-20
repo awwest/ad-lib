@@ -19,8 +19,10 @@ angular.module('famousAngularStarter')
       attractionCap = 100,
       dragStrength = 0.00000001,
       forcesID,
-      attractorPosX = window.innerWidth/3,
-      attractorPosY = window.innerHeight/3;
+      forceArray = [],
+      picSize = [200, 300],
+      attractorPosX = window.innerWidth/2 - picSize[0]/2,
+      attractorPosY = window.innerHeight/2 - picSize[1]/2;
 
 
 
@@ -68,8 +70,8 @@ angular.module('famousAngularStarter')
     (function() {
 
       var pic = new Rectangle({
-        size: [200, 300],
-        position: [250*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
+        size: picSize,
+        position: [250*i + 50, $scope.offset, 1]
       });
       PE.addBody(pic);
 
@@ -85,7 +87,9 @@ angular.module('famousAngularStarter')
 
       // overriding physics with sync
       pic.override = false;
-      pic.sync.on('start', function() { pic.override = true; });
+      pic.sync.on('start', function() { 
+        pic.override = true;
+      });
       pic.sync.on('end', function() { pic.override = false; });
       pic.sync.on('update', function(data){
         pic.setTruePosition([
@@ -180,9 +184,25 @@ angular.module('famousAngularStarter')
       rest.splice(i, 1);
       var pic = picArray[i];
       pic.repulsionID = PE.attach(repulsion, rest, pic);
+      forceArray.push(pic.repulsionID);
       pic.attractionID = PE.attach(attraction, rest, pic);
+      forceArray.push(pic.attractionID);
       pic.attractorID = PE.attach(greatAttractor, pic);
+      forceArray.push(pic.attractorID);
     }
+  }
+
+
+  //Remove all forces in forceArray
+  function detachForces(){
+    for (i = 0; i < forceArray.length; i++){
+      PE.detach(forceArray[i]);
+    }
+  }
+
+  function isolatePicture(picture){
+    detachForces();
+    chainForces($scope.pictures.slice().splice(picture.index, 1));
   }
 
   chainForces($scope.pictures);
