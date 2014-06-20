@@ -5,7 +5,7 @@ angular.module('famousAngularStarter')
 
   // Scope variables
   $scope.numberOfPictures = 6; // number of pictures
-  $scope.offset   = 500; // Y offset from top for where pictures start
+  $scope.offset   = 580; // Y offset from top for where pictures start
   $scope.pictures = []; // array of pictures
 
   //Physics parameters
@@ -15,7 +15,7 @@ angular.module('famousAngularStarter')
       repulsionCap         = 0.5,
       attractionStrength = -300,
       attractionMinRad = 300,
-      attractionMaxRad = Infinity,
+      attractionMaxRad = 500,
       attractionCap = 100,
       dragStrength = 0.00000001;
 
@@ -33,6 +33,7 @@ angular.module('famousAngularStarter')
   var VectorField = $famous['famous/physics/forces/VectorField'];
   var Wall          = $famous['famous/physics/constraints/Wall'];
   var Drag           = $famous['famous/physics/forces/Drag'];
+  var Particle = $famous['famous/physics/bodies/Particle'];
 
   // Other dependencies
   // var SlideData      = require(['../images/SlideData']); // not currently being used
@@ -65,7 +66,7 @@ angular.module('famousAngularStarter')
 
       var pic = new Rectangle({
         size: [200, 300],
-        position: [450*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
+        position: [250*i + 50, $scope.offset, 1] // starts it, but how to make it continue?
       });
       PE.addBody(pic);
 
@@ -116,13 +117,15 @@ angular.module('famousAngularStarter')
   var repulsion = new Repulsion({
     strength: repulsionStrength,
     range: [repulsionMinRadius, repulsionMaxRadius],
-    cap: repulsionCap
+    cap: repulsionCap,
+    cutoff: 1
   });
 
   var attraction = new Repulsion({
     strength: attractionStrength,
     range: [attractionMinRad, attractionMaxRad],
-    cap: attractionCap
+    cap: attractionCap,
+    cutoff: 1
     // decayFunction : Repulsion.DECAY_FUNCTIONS.MORSE
   })
 
@@ -135,14 +138,23 @@ angular.module('famousAngularStarter')
   });
 
   var gravity = new VectorField({
-      strength : .001,
+      strength : 0.0002,
       field : VectorField.FIELDS.CONSTANT,
       direction : [0, 1, 0]
   });
 
+  // var particle = new Particle({position:[window.innerWidth/2, window.innerHeight/2, 0]});
+  var greatAttractor = new Repulsion({
+    strength : -200,
+    range: [1, 100],
+    cap: .01,
+    cutoff: .01,
+    anchor: [window.outerWidth/2, window.outerHeight/2, 0]
+  });
+
   var floor = new Wall({
     normal: [0, -1, 0],
-    distance: window.innerHeight / 2,
+    distance: window.innerHeight / 2 +300,
     restitution: 0,
     drift: 0
   });
@@ -153,15 +165,19 @@ angular.module('famousAngularStarter')
 
   PE.attach([floor, drag, gravity]);
 
-  // Attach a spring and repulsion between each picture and the rest of the pictures
-  for(i = 0; i < $scope.pictures.length; i++) {
-    var rest = $scope.pictures.slice();
-    rest.splice(i, 1);
-    PE.attach(repulsion, rest, $scope.pictures[i]);
-    PE.attach(attraction, rest, $scope.pictures[i]);
-    PE.attach(floor, [$scope.pictures[i]]);
 
+  // Attach a spring and repulsion between each picture and the rest of the pictures
+  function chainForces(picArray){
+    for(i = 0; i < picArray.length; i++) {
+      var rest = picArray.slice();
+      rest.splice(i, 1);
+      PE.attach(repulsion, rest, picArray[i]);
+      PE.attach(attraction, rest, picArray[i]);
+      PE.attach(greatAttractor, picArray[i]);
+    }
   }
+
+  chainForces($scope.pictures);
 
   // // Create a rectangle that repels pictures
   // $scope.repulsionBar = new Rectangle({
